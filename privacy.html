@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0d12" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <title>Pulse Privacy</title>
+  <link rel="icon" type="image/png" href="/icons/favicon.png" />
+  <style>
+    :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0a0d12;color:#f4f7fb}*{box-sizing:border-box}body{margin:0;padding:32px 20px 60px;line-height:1.65}main{max-width:720px;margin:auto}a{color:#8ef0c7}h1{font-size:2rem;letter-spacing:-.04em}h2{margin-top:28px;font-size:1.1rem}p,li{color:#a8b1c1}.card{background:#11161e;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:20px;margin:20px 0}.back{display:inline-block;margin-bottom:24px;text-decoration:none;font-weight:700}
+  </style>
+</head>
+<body><main>
+  <a class="back" href="/">← Back to Pulse</a>
+  <h1>Pulse Privacy</h1>
+  <p>Pulse is a personal health dashboard that reads health and fitness data you authorize through the Google Health API.</p>
+  <div class="card"><strong>In short:</strong> Pulse requests read-only health scopes. It does not sell your health data, use it for advertising, or expose Google access tokens to browser JavaScript.</div>
+  <h2>Data accessed</h2>
+  <p>Depending on what Google Health makes available for your account and device, Pulse may read activity and fitness metrics, health measurements such as HRV and resting heart rate, sleep data, and exercise sessions.</p>
+  <h2>How authentication is stored</h2>
+  <p>After you grant access, the server stores the Google refresh token in an encrypted, HttpOnly cookie. The browser-side dashboard never receives that refresh token. API responses are marked not to be cached.</p>
+  <h2>Storage and sharing</h2>
+  <p>This version does not use a database for your Google Health history. Dashboard values are requested when you sync. Pulse does not sell or share your Google Health data with advertisers or data brokers.</p>
+  <h2>Calculated scores</h2>
+  <p>Pulse Recovery and Pulse Sleep Score are app-generated wellness indicators based on available health metrics. They are not Fitbit's proprietary Readiness or Sleep scores and are not medical diagnoses.</p>
+  <h2>Disconnecting</h2>
+  <p>You can clear the Pulse session by disconnecting from the app or clearing site data in your browser. You can also revoke the app's Google Account access from your Google Account permissions.</p>
+  <h2>Scope</h2>
+  <p>This privacy page describes the personal prototype included with this deployment. If the app is later offered to other users, its privacy policy and Google verification configuration should be reviewed before launch.</p>
+</main></body></html>
