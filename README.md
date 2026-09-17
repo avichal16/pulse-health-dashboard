@@ -28,4 +28,4 @@ Google OAuth redirect URI:
 
 
 ## Activity rollup fix (v2)
-This build fixes daily activity metrics returning zero. Google Health API `dailyRollUp` returns the date under `civilStartTime.date` / `civilEndTime.date`; the earlier build looked for `start.date`, so valid rollups were received but never assigned to a day. This version maps those fields correctly and bumps the PWA shell cache.
+This build fixes daily activity metrics returning zero. Google Health API `dailyRollUp` returns the date under `civilStartTime.date` / `civilEndTime.date`; the earlier build looked for `start.date`, so valid rollups were received but never assigned to a day. This version maps those fields correctly and bumps the PWA shell cache. check-
