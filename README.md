@@ -45,8 +45,13 @@ No new Google OAuth scopes are required. V2's heart-rate detail uses the existin
 - Recovery-performance correlations are observational. They do not establish causation.
 
 
-## V2.1 UX fixes
+## V2.2 UX fixes
 - Sleep now has an explicit 7-day / 30-day trend chart with average, personal baseline and nights-tracked summary.
 - Charts are created when their tab becomes visible, fixing blank/zero-width charts on hidden tabs.
 - Accidental workouts can be discarded without completing a set. Finish now offers to discard an empty workout instead of blocking.
 - The workout logger includes an explicit Discard workout action, while closing a workout with completed sets keeps it resumable.
+
+
+## V2.2 sleep fix
+
+Sleep history now uses Google Health reconciled sleep sessions and groups nights by the local end date derived from `endTime` + `endUtcOffset` when `civilEndTime` is absent. Sleep duration and stages also fall back to stage intervals when summary fields are missing.
