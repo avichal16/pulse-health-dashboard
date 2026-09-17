@@ -138,7 +138,22 @@
           <article class="metric-card"><span class="metric-label">30-day average</span><strong id="sleepBaselineMetric">—</strong><small>sleep duration</small></article>
           <article class="metric-card"><span class="metric-label">Sleep debt</span><strong id="sleepDebt">—</strong><small>vs your 30-day baseline</small></article>
         </section>
-        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">30 nights</p><h3>Sleep duration</h3></div></div><canvas id="sleepChart"></canvas></section>
+        <section class="chart-card sleep-trend-card">
+          <div class="section-heading sleep-trend-heading">
+            <div><p class="eyebrow" id="sleepTrendEyebrow">30 nights</p><h3>Sleep duration trend</h3></div>
+            <div class="range-toggle" aria-label="Sleep trend range">
+              <button class="range-button" data-sleep-range="7">7D</button>
+              <button class="range-button active" data-sleep-range="30">30D</button>
+            </div>
+          </div>
+          <div class="sleep-trend-summary">
+            <div><span>Average</span><strong id="sleepTrendAverage">—</strong></div>
+            <div><span>Baseline</span><strong id="sleepTrendBaseline">—</strong></div>
+            <div><span>Nights tracked</span><strong id="sleepTrendTracked">—</strong></div>
+          </div>
+          <div class="sleep-chart-wrap"><canvas id="sleepChart"></canvas></div>
+          <p class="chart-footnote">Bars show total sleep from Google Health. The dashed line is your rolling personal baseline.</p>
+        </section>
       </section>
 
       <section class="view" id="activity-view" data-view="activity">
@@ -251,6 +266,7 @@
           <div class="rest-banner" id="restBanner" hidden><div><span>Rest timer</span><strong id="restTimer">1:30</strong></div><button id="skipRestButton">Skip</button></div>
           <div id="activeWorkoutExercises"></div>
           <button class="secondary-button full" id="addExerciseButton">+ Add exercise</button>
+          <button class="secondary-button full danger-button" id="discardWorkoutButton">Discard workout</button>
         </div>
       </section>
     </div>

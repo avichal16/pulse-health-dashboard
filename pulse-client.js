@@ -8,6 +8,7 @@ let activeWorkout = null;
 let workoutTicker = null;
 let restTicker = null;
 let restEndsAt = null;
+let sleepTrendRange = 30;
 const oauthError = new URLSearchParams(window.location.search).get('oauth_error');
 
 const STORAGE = {
@@ -72,14 +73,41 @@ function chartData(){
   const labels=Array.from({length:30},(_,i)=>`${i+1}`);
   return{labels,recovery:labels.map((_,i)=>70+Math.sin(i/3)*8),sleepHours:labels.map((_,i)=>7+Math.sin(i/4)*.5),steps:labels.map((_,i)=>8000+Math.round(Math.sin(i/3)*2200))};
 }
+function renderSleepChart(){
+  if(!window.Chart||!document.getElementById('sleepChart'))return;
+  destroyChart('sleep');
+  const d=chartData();
+  const take=sleepTrendRange===7?7:30;
+  const labels=(d.labels||[]).slice(-take);
+  const values=(d.sleepHours||[]).slice(-take);
+  const baselineMinutes=liveData?.recovery?.sleepBaseline??liveData?.baselines?.sleepMinutes??null;
+  const baselineHours=baselineMinutes?Number((baselineMinutes/60).toFixed(2)):null;
+  const baselineData=labels.map(()=>baselineHours);
+  const valid=values.filter(Number.isFinite);
+  const avg=valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:null;
+  const avgEl=document.getElementById('sleepTrendAverage');if(avgEl)avgEl.textContent=avg?`${avg.toFixed(1)}h`:'—';
+  const baseEl=document.getElementById('sleepTrendBaseline');if(baseEl)baseEl.textContent=baselineHours?`${baselineHours.toFixed(1)}h`:'—';
+  const trackedEl=document.getElementById('sleepTrendTracked');if(trackedEl)trackedEl.textContent=`${valid.length}/${labels.length}`;
+  const eye=document.getElementById('sleepTrendEyebrow');if(eye)eye.textContent=sleepTrendRange===7?'7 nights':'30 nights';
+  document.querySelectorAll('[data-sleep-range]').forEach(b=>b.classList.toggle('active',Number(b.dataset.sleepRange)===sleepTrendRange));
+  charts.sleep=new Chart(document.getElementById('sleepChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {type:'bar',data:values,backgroundColor:'rgba(122,184,255,.72)',borderRadius:6,barPercentage:.78,categoryPercentage:.84},
+      {type:'line',data:baselineData,borderColor:'rgba(142,240,199,.85)',borderDash:[6,5],borderWidth:2,pointRadius:0,spanGaps:true}
+    ]},
+    options:{...baseOptions(),plugins:{...baseOptions().plugins,tooltip:{...baseOptions().plugins.tooltip,callbacks:{label(ctx){return ctx.datasetIndex===0?` Sleep: ${ctx.parsed.y?.toFixed(1)??'—'} h`:` Baseline: ${ctx.parsed.y?.toFixed(1)??'—'} h`}}}},scales:{x:baseOptions().scales.x,y:{...baseOptions().scales.y,min:0,suggestedMax:10,ticks:{color:'#7f8a9c',callback:v=>`${v}h`}}}}
+  });
+}
 function initCharts(force=false){
   if(!window.Chart)return;
   if(force)['recovery','sleep','steps','strength'].forEach(destroyChart);
   const d=chartData();
-  if(document.getElementById('recoveryChart')&&!charts.recovery){charts.recovery=new Chart(document.getElementById('recoveryChart'),{type:'line',data:{labels:d.labels,datasets:[{data:d.recovery,borderColor:'#8ef0c7',backgroundColor:'rgba(142,240,199,.12)',fill:true,tension:.35,pointRadius:0,spanGaps:true}]},options:{...baseOptions(),scales:{x:baseOptions().scales.x,y:{...baseOptions().scales.y,min:40,max:100}}}})}
-  if(document.getElementById('sleepChart')&&!charts.sleep){charts.sleep=new Chart(document.getElementById('sleepChart'),{type:'bar',data:{labels:d.labels,datasets:[{data:d.sleepHours,backgroundColor:'rgba(122,184,255,.72)',borderRadius:6}]},options:{...baseOptions(),scales:{x:baseOptions().scales.x,y:{...baseOptions().scales.y,min:0,max:10}}}})}
-  if(document.getElementById('stepsChart')&&!charts.steps){charts.steps=new Chart(document.getElementById('stepsChart'),{type:'bar',data:{labels:d.labels,datasets:[{data:d.steps,backgroundColor:'rgba(142,240,199,.58)',borderRadius:6}]},options:{...baseOptions(),scales:{x:baseOptions().scales.x,y:{...baseOptions().scales.y,beginAtZero:true}}}})}
-  renderStrengthChart();
+  const active=document.querySelector('.view.active')?.dataset.view;
+  if(active==='recovery'&&document.getElementById('recoveryChart')&&!charts.recovery){charts.recovery=new Chart(document.getElementById('recoveryChart'),{type:'line',data:{labels:d.labels,datasets:[{data:d.recovery,borderColor:'#8ef0c7',backgroundColor:'rgba(142,240,199,.12)',fill:true,tension:.35,pointRadius:0,spanGaps:true}]},options:{...baseOptions(),scales:{x:baseOptions().scales.x,y:{...baseOptions().scales.y,min:40,max:100}}}})}
+  if(active==='sleep')renderSleepChart();
+  if(active==='activity'&&document.getElementById('stepsChart')&&!charts.steps){charts.steps=new Chart(document.getElementById('stepsChart'),{type:'bar',data:{labels:d.labels,datasets:[{data:d.steps,backgroundColor:'rgba(142,240,199,.58)',borderRadius:6}]},options:{...baseOptions(),scales:{x:baseOptions().scales.x,y:{...baseOptions().scales.y,beginAtZero:true}}}})}
+  if(active==='train')renderStrengthChart();
 }
 
 function minutesDisplay(total){total=Math.max(0,Math.round(Number(total)||0));const h=Math.floor(total/60),m=total%60;return h?`${h}h ${m?`${m}m`:''}`.trim():`${m}m`}
@@ -187,7 +215,9 @@ function initialSetsForExercise(name){const prev=previousExerciseSession(name);i
 function startWorkoutFromTemplate(id){const t=getTemplates().find(x=>x.id===id);if(!t)return;activeWorkout={id:`w-${Date.now()}`,templateId:t.id,name:t.name,startedAt:new Date().toISOString(),recoveryScore:liveData?.recovery?.score??null,exercises:t.exercises.map(name=>{const ex=findExercise(name);return{id:`ae-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,name:ex.name,muscle:ex.muscle,sets:initialSetsForExercise(ex.name)}})};writeJson(STORAGE.active,activeWorkout);openWorkoutModal()}
 function startQuickWorkout(){if(activeWorkout){openWorkoutModal();return}const last=[...getWorkouts()].sort((a,b)=>new Date(b.startedAt)-new Date(a.startedAt))[0];if(last?.templateId&&getTemplates().some(t=>t.id===last.templateId))startWorkoutFromTemplate(last.templateId);else startWorkoutFromTemplate('push')}
 function openWorkoutModal(){document.getElementById('workoutModal').hidden=false;document.body.classList.add('sheet-open');document.getElementById('workoutModalTitle').textContent=activeWorkout.name;renderActiveWorkout();startWorkoutClock()}
-function closeWorkoutModal(){if(activeWorkout&&completedSetCount(activeWorkout)>0&&!confirm('Keep this workout in progress and close the logger?'))return;document.getElementById('workoutModal').hidden=true;document.body.classList.remove('sheet-open');clearInterval(workoutTicker);workoutTicker=null}
+function closeWorkoutUi(){document.getElementById('workoutModal').hidden=true;document.body.classList.remove('sheet-open');clearInterval(workoutTicker);workoutTicker=null;skipRest()}
+function discardActiveWorkout(ask=true){if(!activeWorkout){closeWorkoutUi();return}if(ask&&!confirm('Discard this workout? Any sets entered in this session will be removed.'))return;localStorage.removeItem(STORAGE.active);activeWorkout=null;closeWorkoutUi();document.getElementById('todayTrainingTitle').textContent='Strength training';document.getElementById('todayTrainingSuggestion').textContent='Start a workout when you are ready.';document.getElementById('todayStartWorkout').textContent='Start';renderTraining();renderWeeklySnapshot();renderTodayInsight()}
+function closeWorkoutModal(){if(!activeWorkout){closeWorkoutUi();return}const completed=completedSetCount(activeWorkout);if(completed===0){if(confirm('No sets are completed. Discard this accidental workout?'))discardActiveWorkout(false);else closeWorkoutUi();return}if(confirm('Close the logger and keep this workout in progress? You can resume it later.'))closeWorkoutUi()}
 function startWorkoutClock(){clearInterval(workoutTicker);const tick=()=>{if(!activeWorkout)return;const sec=Math.max(0,Math.floor((Date.now()-new Date(activeWorkout.startedAt).getTime())/1000));document.getElementById('workoutElapsed').textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`};tick();workoutTicker=setInterval(tick,1000)}
 function completedSetCount(w){return sum((w.exercises||[]).map(e=>completedSets(e).length))}
 function persistActive(){if(activeWorkout)writeJson(STORAGE.active,activeWorkout)}
@@ -201,7 +231,7 @@ function toggleSetDone(key){const[ei,si]=key.split('-').map(Number),s=activeWork
 function startRestTimer(seconds){clearInterval(restTicker);restEndsAt=Date.now()+seconds*1000;const banner=document.getElementById('restBanner');banner.hidden=false;const tick=()=>{const left=Math.max(0,Math.ceil((restEndsAt-Date.now())/1000));document.getElementById('restTimer').textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`;if(left<=0){clearInterval(restTicker);restTicker=null;banner.hidden=true}};tick();restTicker=setInterval(tick,250)}
 function skipRest(){clearInterval(restTicker);restTicker=null;document.getElementById('restBanner').hidden=true}
 
-function finishWorkout(){if(!activeWorkout)return;const completed=completedSetCount(activeWorkout);if(!completed){alert('Complete at least one set before finishing the workout.');return}activeWorkout.endedAt=new Date().toISOString();activeWorkout.exercises=activeWorkout.exercises.map(e=>({...e,sets:e.sets.filter(s=>s.done)})).filter(e=>e.sets.length);const prs=[];for(const e of activeWorkout.exercises){const prevBest=bestHistoricalE1rm(e.name,new Date(activeWorkout.startedAt).getTime());const nowBest=bestE1rmFromExercise(e);if(nowBest>0&&(!prevBest||nowBest>prevBest*1.005))prs.push({exercise:e.name,e1rm:Math.round(nowBest),previous:Math.round(prevBest)})}activeWorkout.prs=prs;const completedWorkout=JSON.parse(JSON.stringify(activeWorkout));const ws=getWorkouts();ws.push(completedWorkout);saveWorkouts(ws);localStorage.removeItem(STORAGE.active);activeWorkout=null;clearInterval(workoutTicker);skipRest();document.getElementById('workoutModal').hidden=true;showCompletion(completedWorkout);renderTraining();renderWeeklySnapshot();renderTodayInsight()}
+function finishWorkout(){if(!activeWorkout)return;const completed=completedSetCount(activeWorkout);if(!completed){if(confirm('No sets are completed. Discard this workout instead?'))discardActiveWorkout(false);return}activeWorkout.endedAt=new Date().toISOString();activeWorkout.exercises=activeWorkout.exercises.map(e=>({...e,sets:e.sets.filter(s=>s.done)})).filter(e=>e.sets.length);const prs=[];for(const e of activeWorkout.exercises){const prevBest=bestHistoricalE1rm(e.name,new Date(activeWorkout.startedAt).getTime());const nowBest=bestE1rmFromExercise(e);if(nowBest>0&&(!prevBest||nowBest>prevBest*1.005))prs.push({exercise:e.name,e1rm:Math.round(nowBest),previous:Math.round(prevBest)})}activeWorkout.prs=prs;const completedWorkout=JSON.parse(JSON.stringify(activeWorkout));const ws=getWorkouts();ws.push(completedWorkout);saveWorkouts(ws);localStorage.removeItem(STORAGE.active);activeWorkout=null;clearInterval(workoutTicker);skipRest();document.getElementById('workoutModal').hidden=true;showCompletion(completedWorkout);renderTraining();renderWeeklySnapshot();renderTodayInsight()}
 function showCompletion(w){const s=workoutStats(w);document.getElementById('completionTitle').textContent=w.name;document.getElementById('completionDuration').textContent=minutesDisplay(s.duration);document.getElementById('completionSets').textContent=s.sets;document.getElementById('completionVolume').textContent=`${numberFormat(s.volume)} lb`;document.getElementById('completionPrs').textContent=w.prs?.length||0;document.getElementById('completionMessage').textContent=w.prs?.length?`${w.prs.map(p=>`${p.exercise}: est. 1RM ${p.e1rm} lb`).join(' · ')}`:'Session saved. Pulse will use these sets for your next-session prefill and progression suggestions.';document.getElementById('completionSheet').hidden=false;document.body.classList.add('sheet-open')}
 function closeCompletion(){document.getElementById('completionSheet').hidden=true;document.body.classList.remove('sheet-open')}
 
@@ -256,7 +286,8 @@ window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();def
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;document.getElementById('installButton').hidden=true;updateSettingsState()});
 document.getElementById('installButton').addEventListener('click',installPulse);document.getElementById('settingsButton').addEventListener('click',()=>{updateSettingsState();setSheet(true)});document.getElementById('settingsClose').addEventListener('click',()=>setSheet(false));document.getElementById('settingsBackdrop').addEventListener('click',()=>setSheet(false));document.getElementById('settingsInstall').addEventListener('click',installPulse);document.getElementById('settingsSync').addEventListener('click',async()=>{setSheet(false);await loadDashboard()});document.getElementById('settingsGoals').addEventListener('click',()=>{setSheet(false);editGoals()});document.getElementById('settingsExport').addEventListener('click',exportTraining);document.getElementById('settingsDisconnect').addEventListener('click',disconnectGoogleHealth);
 document.getElementById('startWorkoutButton').addEventListener('click',startQuickWorkout);document.getElementById('todayStartWorkout').addEventListener('click',startQuickWorkout);document.getElementById('newRoutineButton').addEventListener('click',createRoutine);document.getElementById('editGoalsButton').addEventListener('click',editGoals);
-document.getElementById('workoutClose').addEventListener('click',closeWorkoutModal);document.getElementById('finishWorkoutButton').addEventListener('click',finishWorkout);document.getElementById('skipRestButton').addEventListener('click',skipRest);document.getElementById('addExerciseButton').addEventListener('click',openExercisePicker);document.getElementById('exercisePickerClose').addEventListener('click',closeExercisePicker);document.getElementById('exercisePickerBackdrop').addEventListener('click',closeExercisePicker);document.getElementById('exerciseSearch').addEventListener('input',e=>renderExercisePicker(e.target.value));document.getElementById('customExerciseButton').addEventListener('click',createCustomExercise);document.getElementById('completionBackdrop').addEventListener('click',closeCompletion);document.getElementById('completionDone').addEventListener('click',closeCompletion);document.getElementById('workoutDetailBackdrop').addEventListener('click',closeWorkoutDetail);document.getElementById('workoutDetailClose').addEventListener('click',closeWorkoutDetail);
+document.querySelectorAll('[data-sleep-range]').forEach(button=>button.addEventListener('click',()=>{sleepTrendRange=Number(button.dataset.sleepRange)||30;if(document.getElementById('sleep-view').classList.contains('active'))renderSleepChart()}));
+document.getElementById('workoutClose').addEventListener('click',closeWorkoutModal);document.getElementById('finishWorkoutButton').addEventListener('click',finishWorkout);document.getElementById('discardWorkoutButton').addEventListener('click',()=>discardActiveWorkout(true));document.getElementById('skipRestButton').addEventListener('click',skipRest);document.getElementById('addExerciseButton').addEventListener('click',openExercisePicker);document.getElementById('exercisePickerClose').addEventListener('click',closeExercisePicker);document.getElementById('exercisePickerBackdrop').addEventListener('click',closeExercisePicker);document.getElementById('exerciseSearch').addEventListener('input',e=>renderExercisePicker(e.target.value));document.getElementById('customExerciseButton').addEventListener('click',createCustomExercise);document.getElementById('completionBackdrop').addEventListener('click',closeCompletion);document.getElementById('completionDone').addEventListener('click',closeCompletion);document.getElementById('workoutDetailBackdrop').addEventListener('click',closeWorkoutDetail);document.getElementById('workoutDetailClose').addEventListener('click',closeWorkoutDetail);
 
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
 if(oauthError)history.replaceState({},'','/');
