@@ -12,7 +12,7 @@
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" type="image/png" href="/icons/favicon.png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-  <title>Pulse — Personal Health Dashboard</title>
+  <title>Pulse — Personal Health & Training</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow" id="dateLabel">Wednesday, Sep 16</p>
+        <p class="eyebrow" id="dateLabel">Today</p>
         <h1>Good morning, Avichal</h1>
       </div>
       <button class="avatar" id="settingsButton" aria-label="Open app settings">AC</button>
@@ -32,7 +32,7 @@
     <section class="connection-card" id="connectionCard">
       <div class="connection-copy">
         <span class="connection-dot" id="connectionDot"></span>
-        <div><strong id="connectionTitle">Demo data</strong><p id="connectionSubtitle">Connect Google Health to replace sample values with your Fitbit Air data.</p></div>
+        <div><strong id="connectionTitle">Demo data</strong><p id="connectionSubtitle">Connect Google Health to load your Fitbit Air data.</p></div>
       </div>
       <div class="connection-actions">
         <button class="install-button" id="installButton" hidden>Install</button>
@@ -53,15 +53,24 @@
           <div class="hero-copy">
             <span class="status-chip positive" data-bind="recovery.status">Ready</span>
             <h2 id="recoveryHeadline">Good day to train</h2>
-            <p><span id="recoverySummary">Your HRV is above baseline and sleep was solid. Yesterday’s load was moderate.</span></p>
+            <p id="recoverySummary">Your overnight signals are favorable relative to your baseline.</p>
           </div>
         </div>
 
         <section class="metric-grid four">
-          <article class="metric-card"><span class="metric-label">Sleep</span><strong data-bind="recovery.sleepDisplay">7h 42m</strong><small class="positive-text" id="sleepDelta">+32 min vs avg</small></article>
-          <article class="metric-card"><span class="metric-label">HRV</span><strong data-bind="recovery.hrvDisplay">52 ms</strong><small class="positive-text" id="hrvDelta">+7% vs baseline</small></article>
-          <article class="metric-card"><span class="metric-label">Resting HR</span><strong data-bind="recovery.rhrDisplay">58 bpm</strong><small class="positive-text" id="rhrDelta">3 bpm lower</small></article>
+          <article class="metric-card"><span class="metric-label">Sleep</span><strong data-bind="recovery.sleepDisplay">7h 42m</strong><small class="positive-text" id="sleepDelta">At baseline</small></article>
+          <article class="metric-card"><span class="metric-label">HRV</span><strong data-bind="recovery.hrvDisplay">52 ms</strong><small class="positive-text" id="hrvDelta">Baseline building</small></article>
+          <article class="metric-card"><span class="metric-label">Resting HR</span><strong data-bind="recovery.rhrDisplay">58 bpm</strong><small class="positive-text" id="rhrDelta">Baseline building</small></article>
           <article class="metric-card"><span class="metric-label">Pulse sleep</span><strong data-bind="recovery.pulseSleepScore">86</strong><small id="sleepQuality">Very good</small></article>
+        </section>
+
+        <section class="section-block quick-train-card">
+          <div>
+            <p class="eyebrow">Train</p>
+            <h2 id="todayTrainingTitle">Ready for your next session?</h2>
+            <p id="todayTrainingSuggestion">Pulse will use your recent lifting history to suggest a starting point.</p>
+          </div>
+          <button class="primary-button" id="todayStartWorkout">Start workout</button>
         </section>
 
         <section class="section-block">
@@ -69,7 +78,7 @@
           <div class="activity-stack">
             <div class="progress-card">
               <div class="progress-header"><div><span>Steps</span><strong data-bind="today.stepsFormatted">6,842</strong></div><span id="stepsPct">68%</span></div>
-              <div class="progress-track"><div id="stepsProgress" style="width:68.4%"></div></div><small id="stepsGoal">Goal: 10,000</small>
+              <div class="progress-track"><div id="stepsProgress" style="width:68%"></div></div><small id="stepsGoal">Goal: 10,000</small>
             </div>
             <div class="progress-card">
               <div class="progress-header"><div><span>Active Zone Minutes</span><strong data-bind="today.azmDisplay">31 min</strong></div><span id="azmPct">69%</span></div>
@@ -84,55 +93,52 @@
         </section>
 
         <section class="section-block">
-          <div class="section-heading"><div><p class="eyebrow">Latest</p><h2>Training</h2></div><button class="text-button" data-jump="training">View workouts</button></div>
-          <article class="workout-card">
-            <div class="workout-icon">P</div>
-            <div class="workout-main"><h3 id="latestWorkoutName">Push Workout</h3><p id="latestWorkoutMeta">Yesterday · 1h 08m</p></div>
-            <div class="workout-stat"><strong id="latestWorkoutCalories">522</strong><span>kcal</span></div>
-            <div class="workout-details">
-              <div><span>Avg HR</span><strong id="latestWorkoutHr">128 bpm</strong></div>
-              <div><span>Duration</span><strong id="latestWorkoutDuration">68 min</strong></div>
-              <div><span>Zone min</span><strong id="latestWorkoutAzm">36 min</strong></div>
-            </div>
-          </article>
+          <div class="section-heading"><div><p class="eyebrow">This week</p><h2>Training snapshot</h2></div><button class="text-button" data-jump="train">Open Train</button></div>
+          <div class="weekly-grid">
+            <article><span>Workouts</span><strong id="weekWorkouts">0/4</strong><small id="weekStreak">0 week streak</small></article>
+            <article><span>Strength volume</span><strong id="weekVolume">0 lb</strong><small id="weekSets">0 working sets</small></article>
+            <article><span>Avg sleep</span><strong id="weekSleep">—</strong><small>last 7 nights</small></article>
+            <article><span>Avg recovery</span><strong id="weekRecovery">—</strong><small>last 7 days</small></article>
+          </div>
         </section>
 
         <section class="section-block insight-card">
           <div class="insight-icon">✦</div>
-          <div><p class="eyebrow">Insight</p><h3>Your recovery is trending up</h3><p>Average HRV is 6% higher over the last 7 days while resting heart rate is down 2 bpm.</p></div>
+          <div><p class="eyebrow">Pulse insight</p><h3 id="todayInsightTitle">Building your pattern</h3><p id="todayInsightText">Log a few strength sessions and Pulse will compare your performance with sleep and recovery.</p></div>
         </section>
       </section>
 
       <section class="view" id="recovery-view" data-view="recovery">
-        <div class="page-heading"><p class="eyebrow">Recovery</p><h2>How ready is your body?</h2><p>Built from sleep, HRV, resting heart rate and recent training load.</p></div>
+        <div class="page-heading"><p class="eyebrow">Recovery</p><h2>How ready is your body?</h2><p>Personalized from your rolling 30-day sleep, HRV and resting-HR baseline plus recent training.</p></div>
         <div class="score-panel">
-          <div class="score-number" data-bind="recovery.score">82</div><div><span class="status-chip positive" data-bind="recovery.status">Ready</span><h3>Above your baseline</h3><p>Your overnight signals are favorable today.</p></div>
+          <div class="score-number" data-bind="recovery.score">82</div><div><span class="status-chip positive" data-bind="recovery.status">Ready</span><h3 id="recoveryPanelTitle">Above your baseline</h3><p id="recoveryPanelText">Your overnight signals are favorable today.</p></div>
         </div>
         <div class="factor-list">
-          <div class="factor"><div><span>Sleep</span><small data-bind="recovery.sleepDisplay">7h 42m</small></div><strong id="factorSleep">+29</strong></div>
-          <div class="factor"><div><span>HRV</span><small id="recoveryHrvDetail">52 ms · +7%</small></div><strong id="factorHrv">+23</strong></div>
-          <div class="factor"><div><span>Resting HR</span><small id="recoveryRhrDetail">58 bpm · -3</small></div><strong id="factorRhr">+18</strong></div>
-          <div class="factor"><div><span>Recent training load</span><small>Moderate</small></div><strong>+12</strong></div>
+          <div class="factor"><div><span>Sleep</span><small data-bind="recovery.sleepDisplay">7h 42m</small></div><strong id="factorSleep">—</strong></div>
+          <div class="factor"><div><span>HRV</span><small id="recoveryHrvDetail">52 ms</small></div><strong id="factorHrv">—</strong></div>
+          <div class="factor"><div><span>Resting HR</span><small id="recoveryRhrDetail">58 bpm</small></div><strong id="factorRhr">—</strong></div>
+          <div class="factor"><div><span>Sleep consistency</span><small id="recoveryConsistencyDetail">30-day bedtime variability</small></div><strong id="factorConsistency">—</strong></div>
+          <div class="factor"><div><span>Recent training load</span><small id="recoveryLoadDetail">Combined strength + cardio</small></div><strong id="factorLoad">—</strong></div>
         </div>
-        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">7 days</p><h3>Recovery trend</h3></div></div><canvas id="recoveryChart"></canvas></section>
+        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">30 days</p><h3>Recovery trend</h3></div></div><canvas id="recoveryChart"></canvas></section>
       </section>
 
       <section class="view" id="sleep-view" data-view="sleep">
-        <div class="page-heading"><p class="eyebrow">Last night</p><h2>Sleep</h2><p id="sleepWindow">11:47 PM – 7:41 AM · 7h 42m asleep</p></div>
-        <div class="sleep-score-card"><div class="score-number" data-bind="recovery.pulseSleepScore">86</div><div><span class="status-chip positive">Very good</span><h3>Restorative night</h3><p>Sleep duration and deep sleep were both above your 30-day average.</p></div></div>
+        <div class="page-heading"><p class="eyebrow">Last night</p><h2>Sleep</h2><p id="sleepWindow">—</p></div>
+        <div class="sleep-score-card"><div class="score-number" data-bind="recovery.pulseSleepScore">86</div><div><span class="status-chip positive" id="sleepStatusChip">Very good</span><h3 id="sleepHeadline">Restorative night</h3><p id="sleepSummary">Compared with your rolling 30-day baseline.</p></div></div>
         <div class="sleep-stages">
-          <div data-stage="awake"><span>Awake</span><strong data-stage-value="awake">12m</strong><div class="stage-bar"><i style="width:3%"></i></div></div>
-          <div data-stage="rem"><span>REM</span><strong data-stage-value="rem">1h 43m</strong><div class="stage-bar"><i style="width:22%"></i></div></div>
-          <div data-stage="light"><span>Light</span><strong data-stage-value="light">4h 18m</strong><div class="stage-bar"><i style="width:56%"></i></div></div>
-          <div data-stage="deep"><span>Deep</span><strong data-stage-value="deep">1h 41m</strong><div class="stage-bar"><i style="width:22%"></i></div></div>
+          <div data-stage="awake"><span>Awake</span><strong data-stage-value="awake">—</strong><div class="stage-bar"><i style="width:0%"></i></div></div>
+          <div data-stage="rem"><span>REM</span><strong data-stage-value="rem">—</strong><div class="stage-bar"><i style="width:0%"></i></div></div>
+          <div data-stage="light"><span>Light</span><strong data-stage-value="light">—</strong><div class="stage-bar"><i style="width:0%"></i></div></div>
+          <div data-stage="deep"><span>Deep</span><strong data-stage-value="deep">—</strong><div class="stage-bar"><i style="width:0%"></i></div></div>
         </div>
         <section class="metric-grid two">
-          <article class="metric-card"><span class="metric-label">Efficiency</span><strong>94%</strong><small>Excellent</small></article>
-          <article class="metric-card"><span class="metric-label">Consistency</span><strong>81%</strong><small>Bedtime ±34m</small></article>
-          <article class="metric-card"><span class="metric-label">Respiratory rate</span><strong>14.1</strong><small>breaths/min</small></article>
-          <article class="metric-card"><span class="metric-label">Overnight HR</span><strong>61</strong><small>avg bpm</small></article>
+          <article class="metric-card"><span class="metric-label">Efficiency</span><strong id="sleepEfficiency">—</strong><small>time asleep / sleep period</small></article>
+          <article class="metric-card"><span class="metric-label">Consistency</span><strong id="sleepConsistency">—</strong><small id="sleepConsistencyMeta">30-day bedtime pattern</small></article>
+          <article class="metric-card"><span class="metric-label">30-day average</span><strong id="sleepBaselineMetric">—</strong><small>sleep duration</small></article>
+          <article class="metric-card"><span class="metric-label">Sleep debt</span><strong id="sleepDebt">—</strong><small>vs your 30-day baseline</small></article>
         </section>
-        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">7 nights</p><h3>Sleep duration</h3></div></div><canvas id="sleepChart"></canvas></section>
+        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">30 nights</p><h3>Sleep duration</h3></div></div><canvas id="sleepChart"></canvas></section>
       </section>
 
       <section class="view" id="activity-view" data-view="activity">
@@ -142,19 +148,73 @@
           <article class="metric-card"><span class="metric-label">Active Zone</span><strong data-bind="today.azmDisplay">31 min</strong><small id="activityAzmGoal">Goal 45 min</small></article>
           <article class="metric-card"><span class="metric-label">Calories</span><strong data-bind="today.caloriesFormatted">1,820</strong><small>kcal burned</small></article>
           <article class="metric-card"><span class="metric-label">Distance</span><strong id="activityDistance">3.1 mi</strong><small>Today</small></article>
-          <article class="metric-card"><span class="metric-label">Hourly activity</span><strong>6/9</strong><small>hours active</small></article>
+          <article class="metric-card"><span class="metric-label">7-day step avg</span><strong id="activityStepAverage">—</strong><small>steps/day</small></article>
         </section>
-        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">This week</p><h3>Daily steps</h3></div></div><canvas id="stepsChart"></canvas></section>
+        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">30 days</p><h3>Daily steps</h3></div></div><canvas id="stepsChart"></canvas></section>
       </section>
 
-      <section class="view" id="training-view" data-view="training">
-        <div class="page-heading"><p class="eyebrow">Training</p><h2>Workouts</h2><p>Strength and cardio sessions with heart-rate context.</p></div>
-        <div class="training-load-card"><div><span>7-day workout minutes</span><strong id="trainingLoad">412</strong><small id="trainingLoadMeta">Recent exercise volume</small></div><span class="status-chip neutral" id="trainingLoadStatus">Moderate</span></div>
-        <div class="workout-list" id="workoutList">
-          <article class="workout-row"><div class="workout-icon">P</div><div><h3>Push Workout</h3><p>Tue · 1h 08m</p></div><div class="right"><strong>522</strong><span>kcal</span></div></article>
-        </div>
-        <section class="chart-card"><div class="section-heading"><div><p class="eyebrow">Heart rate</p><h3>Latest workout</h3></div></div><canvas id="workoutChart"></canvas></section>
+      <section class="view" id="train-view" data-view="train">
+        <div class="page-heading train-heading"><div><p class="eyebrow">Train</p><h2>Strength & training</h2><p>Log exact sets, track progression and combine lifting with Fitbit recovery.</p></div><button class="primary-button compact" id="startWorkoutButton">Start workout</button></div>
+
+        <section class="training-load-grid">
+          <article class="load-card"><span>7-day Pulse Load</span><strong id="load7">0</strong><small id="load7Meta">strength + cardio</small></article>
+          <article class="load-card"><span>28-day Pulse Load</span><strong id="load28">0</strong><small id="load28Meta">rolling training load</small></article>
+          <article class="load-card"><span>7:28 load ratio</span><strong id="loadRatio">—</strong><small id="loadRatioMeta">building baseline</small></article>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading"><div><p class="eyebrow">Smart progression</p><h2>Next lift suggestion</h2></div></div>
+          <article class="suggestion-card" id="progressionSuggestion">
+            <div class="suggestion-icon">↗</div><div><h3>Log your first session</h3><p>After you complete an exercise, Pulse will prefill your last sets and suggest the next progression.</p></div>
+          </article>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading"><div><p class="eyebrow">Templates</p><h2>Start quickly</h2></div><button class="text-button" id="newRoutineButton">+ New routine</button></div>
+          <div class="template-grid" id="templateGrid"></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading"><div><p class="eyebrow">This week</p><h2>Goals & streak</h2></div><button class="text-button" id="editGoalsButton">Edit goals</button></div>
+          <div class="goals-card">
+            <div class="goal-row"><div><span>Workouts</span><strong id="goalWorkoutsText">0 / 4</strong></div><div class="goal-track"><i id="goalWorkoutsBar" style="width:0%"></i></div></div>
+            <div class="goal-row"><div><span>Working sets</span><strong id="goalSetsText">0 / 60</strong></div><div class="goal-track"><i id="goalSetsBar" style="width:0%"></i></div></div>
+            <div class="streak-line"><span>🔥</span><div><strong id="trainingStreak">0 week streak</strong><small id="streakMeta">Hit your workout goal to start a streak.</small></div></div>
+          </div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading"><div><p class="eyebrow">Muscle groups</p><h2>Weekly working sets</h2></div></div>
+          <div class="muscle-volume" id="muscleVolume"></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading"><div><p class="eyebrow">Progress</p><h2>Strength analytics</h2></div></div>
+          <div class="analytics-grid">
+            <article><span>Volume this week</span><strong id="analyticsVolume">0 lb</strong><small id="analyticsVolumeDelta">Start logging to compare</small></article>
+            <article><span>PRs this month</span><strong id="analyticsPrs">0</strong><small>estimated 1RM PRs</small></article>
+            <article><span>Top exercise</span><strong id="analyticsTopExercise">—</strong><small id="analyticsTopExerciseMeta">most improved</small></article>
+            <article><span>Avg session</span><strong id="analyticsDuration">—</strong><small>strength duration</small></article>
+          </div>
+          <section class="chart-card compact-chart"><canvas id="strengthChart"></canvas></section>
+        </section>
+
+        <section class="section-block insight-card">
+          <div class="insight-icon">✦</div>
+          <div><p class="eyebrow">Recovery × performance</p><h3 id="correlationTitle">Building your correlation</h3><p id="correlationText">After a few sessions, Pulse will compare your strength performance on higher- vs lower-recovery days.</p></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading"><div><p class="eyebrow">History</p><h2>Recent strength sessions</h2></div></div>
+          <div class="workout-list" id="strengthHistory"></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading"><div><p class="eyebrow">Fitbit exercise</p><h2>Cardio & detected workouts</h2></div></div>
+          <div class="workout-list" id="googleWorkoutList"></div>
+        </section>
       </section>
+
       <footer class="legal-footer"><span>Pulse uses read-only Google Health access.</span><a href="/privacy.html">Privacy</a></footer>
     </main>
 
@@ -163,7 +223,7 @@
       <button class="nav-item" data-target="recovery"><span>♥</span><small>Recovery</small></button>
       <button class="nav-item" data-target="sleep"><span>☾</span><small>Sleep</small></button>
       <button class="nav-item" data-target="activity"><span>◎</span><small>Activity</small></button>
-      <button class="nav-item" data-target="training"><span>▲</span><small>Training</small></button>
+      <button class="nav-item" data-target="train"><span>▲</span><small>Train</small></button>
     </nav>
 
     <div class="settings-sheet" id="settingsSheet" hidden>
@@ -173,8 +233,66 @@
         <div class="settings-heading"><div><p class="eyebrow">Pulse</p><h2 id="settingsTitle">App settings</h2></div><button class="sheet-close" id="settingsClose" aria-label="Close">×</button></div>
         <button class="settings-action" id="settingsInstall"><span>＋</span><div><strong>Install Pulse</strong><small>Add it to your phone home screen</small></div></button>
         <button class="settings-action" id="settingsSync"><span>↻</span><div><strong>Sync now</strong><small>Refresh your latest Google Health data</small></div></button>
+        <button class="settings-action" id="settingsGoals"><span>◎</span><div><strong>Goals</strong><small>Steps, zone minutes and weekly training targets</small></div></button>
+        <button class="settings-action" id="settingsExport"><span>⇩</span><div><strong>Export training log</strong><small>Download your strength history as JSON</small></div></button>
         <button class="settings-action danger-action" id="settingsDisconnect"><span>×</span><div><strong>Disconnect Google Health</strong><small>Clear the Pulse login from this device</small></div></button>
-        <a class="settings-action" href="/privacy.html"><span>i</span><div><strong>Privacy</strong><small>How Pulse handles your health data</small></div></a>
+        <a class="settings-action" href="/privacy.html"><span>i</span><div><strong>Privacy</strong><small>How Pulse handles your health and training data</small></div></a>
+      </section>
+    </div>
+
+    <div class="workout-modal" id="workoutModal" hidden>
+      <section class="workout-modal-panel" role="dialog" aria-modal="true" aria-labelledby="workoutModalTitle">
+        <header class="workout-modal-header">
+          <button class="icon-button" id="workoutClose" aria-label="Close workout">×</button>
+          <div><p class="eyebrow" id="workoutElapsed">00:00</p><h2 id="workoutModalTitle">Workout</h2></div>
+          <button class="finish-button" id="finishWorkoutButton">Finish</button>
+        </header>
+        <div class="workout-modal-body">
+          <div class="rest-banner" id="restBanner" hidden><div><span>Rest timer</span><strong id="restTimer">1:30</strong></div><button id="skipRestButton">Skip</button></div>
+          <div id="activeWorkoutExercises"></div>
+          <button class="secondary-button full" id="addExerciseButton">+ Add exercise</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="picker-sheet" id="exercisePicker" hidden>
+      <button class="settings-backdrop" id="exercisePickerBackdrop" aria-label="Close exercise picker"></button>
+      <section class="settings-panel picker-panel">
+        <div class="sheet-handle"></div>
+        <div class="settings-heading"><div><p class="eyebrow">Workout</p><h2>Add exercise</h2></div><button class="sheet-close" id="exercisePickerClose">×</button></div>
+        <input class="search-input" id="exerciseSearch" type="search" placeholder="Search bench, row, squat…" />
+        <div class="exercise-picker-list" id="exercisePickerList"></div>
+        <button class="secondary-button full" id="customExerciseButton">+ Custom exercise</button>
+      </section>
+    </div>
+
+
+    <div class="detail-sheet" id="workoutDetailSheet" hidden>
+      <button class="settings-backdrop" id="workoutDetailBackdrop" aria-label="Close workout details"></button>
+      <section class="settings-panel detail-panel">
+        <div class="sheet-handle"></div>
+        <div class="settings-heading"><div><p class="eyebrow">Strength session</p><h2 id="workoutDetailTitle">Workout</h2></div><button class="sheet-close" id="workoutDetailClose">×</button></div>
+        <div class="detail-summary-grid" id="workoutDetailSummary"></div>
+        <div class="fitbit-context" id="fitbitContext"><strong>Fitbit context</strong><p>Sync Google Health to pair heart-rate telemetry with this session.</p></div>
+        <div class="detail-exercises" id="workoutDetailExercises"></div>
+      </section>
+    </div>
+
+    <div class="completion-sheet" id="completionSheet" hidden>
+      <button class="settings-backdrop" id="completionBackdrop" aria-label="Close workout summary"></button>
+      <section class="settings-panel completion-panel">
+        <div class="sheet-handle"></div>
+        <div class="completion-mark">✓</div>
+        <p class="eyebrow">Workout complete</p>
+        <h2 id="completionTitle">Push Day</h2>
+        <div class="completion-grid">
+          <div><span>Duration</span><strong id="completionDuration">—</strong></div>
+          <div><span>Sets</span><strong id="completionSets">—</strong></div>
+          <div><span>Volume</span><strong id="completionVolume">—</strong></div>
+          <div><span>PRs</span><strong id="completionPrs">—</strong></div>
+        </div>
+        <p id="completionMessage" class="completion-message"></p>
+        <button class="primary-button full" id="completionDone">Done</button>
       </section>
     </div>
   </div>

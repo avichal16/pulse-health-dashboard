@@ -1,7 +1,7 @@
 {
-  "name": "Pulse Health Dashboard",
+  "name": "Pulse Health & Training",
   "short_name": "Pulse",
-  "description": "A mobile-first personal dashboard for Fitbit Air data from Google Health.",
+  "description": "Personal Fitbit Air health dashboard and strength-training log with recovery, progression and performance insights.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
