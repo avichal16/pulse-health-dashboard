@@ -28,4 +28,10 @@ Google OAuth redirect URI:
 
 
 ## Activity rollup fix (v2)
-This build fixes daily activity metrics returning zero. Google Health API `dailyRollUp` returns the date under `civilStartTime.date` / `civilEndTime.date`; the earlier build looked for `start.date`, so valid rollups were received but never assigned to a day. This version maps those fields correctly and bumps the PWA shell cache. check-
+This build fixes daily activity metrics returning zero. Google Health API `dailyRollUp` returns the date under `civilStartTime.date` / `civilEndTime.date`; the earlier build looked for `start.date`, so valid rollups were received but never assigned to a day. This version maps those fields correctly and bumps the PWA shell cache.
+
+
+## Patch: distance + floors
+
+- Fixed distance conversion from Google Health millimeters to miles (1 mile = 1,609,344 mm).
+- Floors now display as unavailable when Google Health returns no floors data instead of incorrectly showing 0. Fitbit Air does not currently list Floors as a supported data type in Google's device-compatibility table.

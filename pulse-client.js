@@ -127,7 +127,8 @@ function hydrate(data) {
       ...data.today,
       stepsFormatted: Number(data.today.steps || 0).toLocaleString(),
       caloriesFormatted: Number(data.today.calories || 0).toLocaleString(),
-      azmDisplay: `${Math.round(data.today.activeZoneMinutes || 0)} min`
+      azmDisplay: `${Math.round(data.today.activeZoneMinutes || 0)} min`,
+      floorsDisplay: data.today.floors === null || data.today.floors === undefined ? '—' : String(Math.round(data.today.floors))
     }
   };
 
@@ -161,6 +162,8 @@ function hydrate(data) {
   document.getElementById('stepRing').style.background = `radial-gradient(circle at center, var(--surface) 56%, transparent 57%), conic-gradient(var(--accent) ${sp}%, rgba(255,255,255,.07) 0)`;
   document.getElementById('activityAzmGoal').textContent = `Goal ${data.today.activeZoneGoal} min`;
   document.getElementById('activityDistance').textContent = `${Number(data.today.distanceMiles || 0).toFixed(1)} mi`;
+  const floorsUnit = document.getElementById('floorsUnit');
+  if (floorsUnit) floorsUnit.textContent = data.today.floors === null || data.today.floors === undefined ? 'not tracked' : 'floors';
 
   const latest = data.training.latest;
   if (latest) {

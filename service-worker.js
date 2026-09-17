@@ -1,4 +1,4 @@
-const CACHE = 'pulse-shell-v2';
+const CACHE = 'pulse-shell-v3';
 const SHELL = ['/', '/index.html', '/styles.css', '/pulse-client.js', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', event => {
